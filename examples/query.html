@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <!-- Include the ytquery javascript file -->
+    <script type="text/javascript" src="../ytquery-min.js"> </script>
+  </head>
+    <!-- Important: - you must have a <head> tag -->
+
+  <body>
+    Check the console to see results
+  </body>
+
+  <script type="text/javascript"> 
+    
+    // Create a query params object
+    var params = {
+      "q" : "puppy dogs",
+      "max-results" : "5",
+      "orderby" : "published"
+    };
+
+    // Create a callback
+    var cb = function(res){
+      console.log('puppy dog results', res);
+    };
+    
+    // Call ytQuery.query, passing params and your callback
+    ytQuery.query(params, cb);
+
+  </script>
+</html>

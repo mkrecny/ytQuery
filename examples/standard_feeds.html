@@ -1,0 +1,25 @@
+<html>
+
+  <head>
+    <script type="text/javascript" src="../ytquery-min.js"> </script>
+  </head>
+
+  <body>
+    Open the console to see results
+  </body>
+
+  <script type="text/javascript"> 
+
+    var params = {
+      "standard_feed" : "most_viewed",
+      "category" : "Sports"
+    };
+
+    var cb = function(res){
+      console.log('Sports results', res);
+    };
+
+    ytQuery.query(params, cb);
+
+  </script>
+</html>
