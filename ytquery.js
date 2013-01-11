@@ -1,4 +1,7 @@
 (function(){
+
+  var currentId = 0;
+
   window.ytQuery = {
     _validStandardFeeds :['top_rated', 'top_favorites', 'most_viewed', 'most_shared', 'most_popular', 'most_recent', 'most_discussed', 'most_responded', 'recently_featured', 'on_the_web'],
     _validParams : ['q', 'max-results', 'start-index', 'standard_feed', 'caption', '3d', 'category', 'duration', 'hd', 'lang', 'license', 'location', 'orderby', 'time'],
@@ -6,13 +9,12 @@
       default : 'http://gdata.youtube.com/feeds/api/videos',
       standard_feed : 'http://gdata.youtube.com/feeds/api/standardfeeds/'
     },
-    _callbacks : [],
-    _registerCallback : function(url, cb){
-      return this._callbacks.push(cb);
-    },
-    _queryCallback : function(data){
-      data = this._formatResponse(data);
-      return this._callbacks.pop()(data);
+    _callbacks : {},
+    _registerCallback : function(queryId, cb){
+      var self = this;
+      this._callbacks[queryId] = function(data){
+        cb(self._formatResponse(data));
+      };
     },
     _appendQueryScript : function(url){
       var script = document.createElement('script');
@@ -23,12 +25,12 @@
     _formatResponse : function(data){
       return data.feed.entry;
     },
-    _getUrlFromParams : function(params){
+    _getUrlFromParams : function(queryId, params){
       var queryItems = ['cbid='+new Date().getTime()];
       Object.keys(params).forEach(function(key){
         queryItems.push(escape(key)+'='+escape(params[key]));
       });
-      return this._getBaseUrl(params)+'?alt=json-in-script&callback=ytQuery._queryCallback&v=2&'+queryItems.join('&');
+      return this._getBaseUrl(params)+'?alt=json-in-script&callback=ytQuery._callbacks['+queryId+']&v=2&'+queryItems.join('&');
     },
     _getBaseUrl : function(params){
       return params.standard_feed ? this._baseUrls.standard_feed+params.standard_feed : this._baseUrls.default;  
@@ -61,8 +63,9 @@
         invalidParams = invalidParams.toString();
         throw new Error('Request uses invalid params '+invalidParams);
       } else {
-        var url = this._getUrlFromParams(params); 
-        this._registerCallback(url, cb);
+        var queryId = currentId++;
+        var url = this._getUrlFromParams(queryId, params); 
+        this._registerCallback(queryId, cb);
         this._appendQueryScript(url);
       }
     }
